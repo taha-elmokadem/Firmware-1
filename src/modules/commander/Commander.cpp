@@ -590,7 +590,7 @@ Commander::Commander() :
 	_failure_detector(this)
 {
 	_auto_disarm_landed.set_hysteresis_time_from(false, _param_com_disarm_preflight.get() * 1_s);
-	_auto_disarm_killed.set_hysteresis_time_from(false, 5_s);
+	_auto_disarm_killed.set_hysteresis_time_from(false, _param_com_kill_disarm.get() * 1_s);
 
 	// We want to accept RC inputs as default
 	status.rc_input_mode = vehicle_status_s::RC_IN_MODE_DEFAULT;
