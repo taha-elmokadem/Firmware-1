@@ -45,6 +45,7 @@
 
 #include "mc_att_control.hpp"
 
+#include <iostream>
 #include <conversion/rotation.h>
 #include <drivers/drv_hrt.h>
 #include <lib/ecl/geo/geo.h>
@@ -368,16 +369,24 @@ MulticopterAttitudeControl::control_attitude()
 	Eulerf desired_euler(qd);
 	if (_v_control_mode.flag_control_offboard_enabled) {
 	  Eulerf current_euler(q);
+
 	  qd = Quatf(Eulerf(desired_euler.phi(), desired_euler.theta(), current_euler.psi()));
+	  /*std::cout << "command phi: " << desired_euler.phi()
+	  	<< ", command theta: " << desired_euler.theta()
+		<< ", command psi: " << desired_euler.psi() << std::endl;*/
 	}
 
 	_rates_sp = _attitude_control.update(q, qd, _v_att_sp.yaw_sp_move_rate);
 
 	// update yaw rate
-    	if (_v_control_mode.flag_control_offboard_enabled) {
+    if (_v_control_mode.flag_control_offboard_enabled) {
 		//_v_rates_sp_sub.update(&_v_rates_sp);
-		_rates_sp(2) = desired_euler.psi();//_v_rates_sp.yaw;
-    	}
+		//_rates_sp(2) = desired_euler.psi(); //_v_rates_sp.yaw;
+		_v_rates_sp_sub.update(&_v_rates_sp);
+		const auto yawrate_reference = _v_rates_sp.yaw;
+		_rates_sp(2) = yawrate_reference;
+		std::cout << "command yaw rate: " << _rates_sp(2) << "sp yaw rate: " << _v_rates_sp.yaw << std::endl;
+    }
 	/* changes end */
 }
 
@@ -411,6 +420,11 @@ MulticopterAttitudeControl::publish_rates_setpoint()
 	_v_rates_sp.timestamp = hrt_absolute_time();
 
 	_v_rates_sp_pub.publish(_v_rates_sp);
+	if (_v_control_mode.flag_control_offboard_enabled) {
+	std::cout << "command roll rate: " << _rates_sp(0)
+	  	<< ", command pitch rate: " << _rates_sp(1)
+		<< ", command yaw rate: " << _rates_sp(2) << std::endl;
+	}
 }
 
 void
