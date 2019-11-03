@@ -370,7 +370,7 @@ MulticopterAttitudeControl::control_attitude()
 	if (_v_control_mode.flag_control_offboard_enabled) {
 	  Eulerf current_euler(q);
 
-	  qd = Quatf(Eulerf(desired_euler.phi(), desired_euler.theta(), current_euler.psi()));
+	  qd = Quatf(Eulerf(desired_euler.phi(), desired_euler.theta(), 0.0)); //current_euler.psi()
 	  /*std::cout << "command phi: " << desired_euler.phi()
 	  	<< ", command theta: " << desired_euler.theta()
 		<< ", command psi: " << desired_euler.psi() << std::endl;*/
